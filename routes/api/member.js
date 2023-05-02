@@ -19,8 +19,12 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+    let count = 0;
+    members.forEach(member => {
+        count += 1;
+    })
     const newMember = {
-        id: uuid.v4(),
+        id: count + 1,
         name: req.body.name,
         email: req.body.email,
         status: 'active'
