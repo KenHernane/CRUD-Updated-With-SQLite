@@ -1,3 +1,3 @@
 # CRUD-expressjs
-Updated files, to run, use npm run dev
-Fields are case-sensitive
+To open, in terminal, run 'npm run dev'
+THe fields are case sensitive, use the exact case for searching
