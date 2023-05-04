@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
 const app = express();
-const members = require("./Members")
+const db = require("D:/XAMPP/htdocs/express/db/memberCrud.js");
 
 app.engine('handlebars', exphbs.engine({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
@@ -11,10 +11,10 @@ app.set('views', './views');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.get('/', (req, res) => res.render('index', {
-    title: 'Member App',
-    members
-}));
+app.get('/', async (req, res) => {
+    const members = await db.getAllMembers();
+    res.render('index', {title: 'Member App', members});
+});
 app.get('/hello', (req, res) => res.render('hello', {
     title: "Hello App"
 }));

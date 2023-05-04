@@ -2,10 +2,13 @@ const express = require('express');
 const uuid = require('uuid');
 const router = express.Router();
 const bodyParser = require('body-parser');
-const members = require('../../Members');
+const db = require("D:/XAMPP/htdocs/express/db/memberCrud.js");
 
 router.use(bodyParser.urlencoded({ extended: true }));
-router.get('/', (req, res) => res.json(members));
+router.get('/', async (req, res) => {
+    const members = await db.getAllMembers();
+    res.status(200).json({members});
+});
 
 router.get('/:id', (req, res) => {
     const found = members.some(member => member.id === parseInt(req.params.id));
@@ -18,37 +21,29 @@ router.get('/:id', (req, res) => {
     }
 });
 
-router.post('/', (req, res) => {
-    let count = 0;
-    members.forEach(member => {
-        count += 1;
-    })
-    const newMember = {
-        id: count + 1,
+router.post('/', async (req, res) => {
+    
+   const newMember = {
         name: req.body.name,
         email: req.body.email,
         status: 'active'
-    }
-    if(!newMember.name || !newMember.email) {
+   }
+   if(!newMember.name || !newMember.email) {
         return res.status(400).json({ msg: "Please include a name and email" });
     }
-    members.push(newMember);
+    const createMember = await db.createMember(newMember);
    // res.json(members);
    res.redirect('/');
 });
 
-router.post('/update', (req, res) => {
-    const found = members.some(member => member.id === parseInt(req.body.id));
-    console.log(req.body.id);
+router.post('/update', async (req, res) => {
+    const members = await db.getAllMembers();
+    const found = members.some(member => member.ID === parseInt(req.body.id));
 
     if(found) {
         const updMember = req.body;
-        members.forEach(member => {
-            if(member.id === parseInt(req.body.id)) {
-                member.name = updMember.name ? updMember.name : member.name;
-                member.email = updMember.email ? updMember.email : member.email;
-            }
-        });
+        
+        await db.updateMember(parseInt(req.body.id), req.body);
         res.redirect('/');
     }
     else {
@@ -56,23 +51,17 @@ router.post('/update', (req, res) => {
     }
 });
 
-router.post('/remove', (req, res) => {
+router.post('/remove', async (req, res) => {
+    const members = await db.getAllMembers();
+
     const found = members.some(member => member.name === req.body.name);
     if(found) {
-        var index = -1;
         var val = req.body.name;
-        console.log(val);
-        var filter = members.find(function (item, i) {
-            if(item.name === val) {
-                index = i;
-                return i;
-            }
-        });
-        members.splice(index, 1);
+        await db.deleteMember(val);
         res.redirect('/');
     }
     else {
-        res.status(400).json({ msg: `No member with the id of ${req.params.id}`});
+        res.status(400).json({ msg: `No member with the name of ${req.body.name}`});
     }
 });
 
